@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="SQL注入原理将SQL语句插入或添加到应用（用户）的输入参数中，再将这些参数传递给后台的SQL服务器加以解析并执行。 危害数据库信息泄漏：数据库中存放的用户的隐私信息的泄露。网页篡改：通过操作数据库对特定网页进行篡改。网站被挂马，传播恶意软件：修改数据库一些字段的值，嵌入网马链接，进行挂马攻击。数据库被恶意操作：数据库服务器被攻击，数据库的系统管理员帐户被窜改。服务器被远程控制，被安装后门。经由数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="t2ee的博客">
+<meta property="og:url" content="http://example.com/2021/05/25/%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="t2ee的博客">
+<meta property="og:description" content="SQL注入原理将SQL语句插入或添加到应用（用户）的输入参数中，再将这些参数传递给后台的SQL服务器加以解析并执行。 危害数据库信息泄漏：数据库中存放的用户的隐私信息的泄露。网页篡改：通过操作数据库对特定网页进行篡改。网站被挂马，传播恶意软件：修改数据库一些字段的值，嵌入网马链接，进行挂马攻击。数据库被恶意操作：数据库服务器被攻击，数据库的系统管理员帐户被窜改。服务器被远程控制，被安装后门。经由数">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-05-25T09:01:30.364Z">
+<meta property="article:modified_time" content="2021-03-24T08:25:35.421Z">
+<meta property="article:author" content="t2ee">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/05/25/%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | t2ee的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">t2ee的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-resources">
+
+    <a href="/resources/" rel="section"><i class="download fa-fw"></i>资源</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/25/%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/111.jpg">
+      <meta itemprop="name" content="t2ee">
+      <meta itemprop="description" content="选择有时候比努力更重要">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="t2ee的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-05-25 17:01:30" itemprop="dateCreated datePublished" datetime="2021-05-25T17:01:30+08:00">2021-05-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-24 16:25:35" itemprop="dateModified" datetime="2021-03-24T16:25:35+08:00">2021-03-24</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>将<strong>SQL语句</strong>插入或添加到应用（用户）的<strong>输入参数</strong>中，再将这些参数传递给后台的SQL服务器加以解析并执行。</p>
+<h2 id="危害"><a href="#危害" class="headerlink" title="危害"></a>危害</h2><p>数据库信息泄漏：数据库中存放的用户的隐私信息的泄露。<br>网页篡改：通过操作数据库对特定网页进行篡改。<br>网站被挂马，传播恶意软件：修改数据库一些字段的值，嵌入网马链接，进行挂马攻击。<br>数据库被恶意操作：数据库服务器被攻击，数据库的系统管理员帐户被窜改。<br>服务器被远程控制，被安装后门。经由数据库服务器提供的操作系统支持，让黑客得以修改或控制操作系统。<br>破坏硬盘数据，瘫痪全系统。</p>
+<h2 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h2><p>（1）Union注入<br>（2）盲注 //分为延时盲注和布尔盲注<br>（3）报错注入<br>（4）堆叠查询<br>（5）宽字节注入<br>（6）HTTP参数污染注入</p>
+<h2 id="修复方案"><a href="#修复方案" class="headerlink" title="修复方案"></a>修复方案</h2><p>SQL语句预编译<br>针对SQL输入内容进行限制、过滤 //目前使用WAF对这一块进行处理<br>针对提交的关键数据进行转义 ，比如\select<br>关闭错误信息输出 ，因为有些错误返回信息，会返回物理路径、数据库版本信息等<br>数据库权限严格控制 ，不同级别的用户，只能进行相应级别权限的操作<br>敏感信息严格加密处理</p>
+<h2 id="攻击检测方法"><a href="#攻击检测方法" class="headerlink" title="攻击检测方法"></a>攻击检测方法</h2><p>可以通过burpsuite抓包，看看请求是否有敏感的sql语句</p>
+<h1 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h1><h2 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h2><p>攻击者往Web页面里插入恶意html标签或者javascript代码。<br>分别是反射型XSS、持久型XSS和DOM XSS</p>
+<h2 id="危害-1"><a href="#危害-1" class="headerlink" title="危害"></a>危害</h2><p>（1）网络钓鱼，盗取各类用户的账号<br>（2）窃取用户Cookie，获取用户隐私，或者利用用户身份进一步执行操作<br>（3）劫持用户（浏览器）会话，从而执行任意操作，例如进行非法转账、强制发表日志等<br>（4）强制弹出广告页面，刷流量等<br>（5）进行恶意操作，例如任意篡改页面信息，删除文章等，传播跨站脚本蠕虫，网页挂等<br>（6）进行基于大量的客户端攻击，如DDOS攻击<br>（7）结合其它漏洞，如CSRF漏洞。</p>
+<h2 id="利用方式-1"><a href="#利用方式-1" class="headerlink" title="利用方式"></a>利用方式</h2><ul>
+<li>反射型XSS攻击</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxx.xxx.xxx.xxx/dvwa/vulnerabilities/xss_d/?default=English&lt;script&gt;alert(/xss/)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>存储型XSS攻击</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">其目的在于利用图片报错信息来嵌入一段XSS代码，达到持久化的作用。</span><br><span class="line">&lt;img src=1 oneerror=alert(/test_xss_stored/)&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="修复方案-1"><a href="#修复方案-1" class="headerlink" title="修复方案"></a>修复方案</h2><p>（1）代码里对用户输入的地方和变量都需要仔细检查长度和对”&lt;”,”&gt;”,”;”,”’”等字符做过滤；其次任何内容写到页面之前都必须加encode，避免不小心把html tag 弄出来。这一个层面做好，至少可以堵住超过一半的XSS 攻击。<br>（2）避免直接在cookie 中泄露用户隐私，例如email、密码等等。<br>（3）通过使cookie 和系统ip 绑定来降低cookie 泄露后的危险。这样攻击者得到的cookie 没有实际价值，不可能拿来重放。<br>（4）尽量采用POST 而非GET 提交表单</p>
+<h2 id="攻击检测方法-1"><a href="#攻击检测方法-1" class="headerlink" title="攻击检测方法"></a>攻击检测方法</h2><p>流量分析，也可以从浏览器的请求中查看一些敏感的标签，是否存在script标签等</p>
+<h1 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h1><h2 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h2><p>CSRF是一种夹持用户在已经登陆的web应用程序上执行非本意的操作的攻击方式。相比于XSS，CSRF是利用了系统对页面浏览器的信任，XSS则利用了系统对用户的信任。</p>
+<h2 id="危害-2"><a href="#危害-2" class="headerlink" title="危害"></a>危害</h2><p>以受害者名义发送邮件，发消息，盗取受害者的账号，甚至购买商品，虚拟货币转账，修改受害者的网络配置（比如修改路由器DNS、重置路由器密码）等等。。造成的问题包括：个人隐私泄露、机密资料泄露、用户甚至企业的财产安全；一句话概括CSRF的危害：盗用受害者身份，受害者能做什么，攻击者就能以受害者的身份做什么。</p>
+<h2 id="利用方式-2"><a href="#利用方式-2" class="headerlink" title="利用方式"></a>利用方式</h2><p>攻击者知道重要操作的所有参数）当A用户使用浏览器访问一个带有csrf漏洞的网站时，并且产生了cookie值存储在浏览器中，在用户A不退出网站的前提下，这时候访问用户B（攻击者）构造的的恶意链接，使其服务器以为是用户A的合理请求以达到攻击者想要的请求。</p>
+<h2 id="修复方案-2"><a href="#修复方案-2" class="headerlink" title="修复方案"></a>修复方案</h2><p>（1） GET、POST的正确使用<br>（2） 利用验证码（在一定的情况下使用，但是为了防止客户产生不好印象，尽量不用）<br>（3） 验证HTTP Refer字段，当浏览器向web服务器发送请求的时候，一般会带上Referer，告诉服务器我是从哪个页面链接过来的，服务器籍此可以获得一些信息用于处理。但服务器并非任何时候都能取到referer、保护客户隐私，不作为预防主要手段)<br>（4） Anti CSRF Token：为每一个表单生成一个随机数秘钥，并在服务器端建立一个拦截器来验证这个token，如果请求中没有token或者token内容不正确，则认为可能是CSRF攻击而拒绝该请求。</p>
+<h2 id="攻击检测方法-2"><a href="#攻击检测方法-2" class="headerlink" title="攻击检测方法"></a>攻击检测方法</h2><p>查看对方ip是否发送大量邮件</p>
+<h1 id="XXE"><a href="#XXE" class="headerlink" title="XXE"></a>XXE</h1><h2 id="原理-3"><a href="#原理-3" class="headerlink" title="原理"></a>原理</h2><p>许多较早的或配置错误的XML处理器评估了XML文件中的外部实体引用。攻击者可以利用外部实体窃</p>
+<p>取使用URI文件处理器的内部文件和共享文件、监听内部扫描端口、执行远程代码和实施拒绝服务攻</p>
+<p>击。</p>
+<blockquote>
+<p><strong>XML用于标识电子文件使其具有结构性的标识语言，可以用来标记数据、定义数据类型，是一种允许用户对自己的标记语言进行定义的源语言。XML文档结构包括XML声名、DTD文档类型定义、文档元素。</strong></p>
+</blockquote>
+<h2 id="危害-3"><a href="#危害-3" class="headerlink" title="危害"></a>危害</h2><p>XXE缺陷可用于提取数据、执行远程服务器请求、扫描内部系统、执行拒绝服务攻击和其他攻击。</p>
+<h2 id="利用方式-3"><a href="#利用方式-3" class="headerlink" title="利用方式"></a>利用方式</h2><p>通常攻击者会将payload注入XML文件中，一旦文件被执行，将会读取服务器上的本地文件，并对内网发起访问扫描内部网络端口。换而言之，XXE是一种从本地到达各种服务的方法。此外，在一定程度上这也可能帮助攻击者绕过防火墙规则过滤或身份验证检查。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">POST /vulnerable HTTP/1.1</span><br><span class="line">Host: www.test.com</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</span><br><span class="line">Accept-Language: en-US,en;q=0.5</span><br><span class="line">Referer: https://test.com/test.html</span><br><span class="line">Content-Type: application/xml</span><br><span class="line">Content-Length: 294</span><br><span class="line">Cookie: mycookie=cookies;</span><br><span class="line">Connection: close</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line"> </span><br><span class="line">&lt;?xml version=&quot;1.0&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE GVI [&lt;!ENTITY xxe SYSTEM &quot;http://127.0.0.1:8080&quot; &gt;]&gt;//内网端口的探测</span><br><span class="line">//&lt;!ENTITY xxe SYSTEM=&quot;file:///etc/passwd&quot;]&gt; 利用file://、php://等伪协议读取本地文件</span><br><span class="line">&lt;catalog&gt;</span><br><span class="line">   &lt;core id=&quot;test101&quot;&gt;</span><br><span class="line">      &lt;author&gt;John, Doe&lt;/author&gt;</span><br><span class="line">      &lt;title&gt;I love XML&lt;/title&gt;</span><br><span class="line">      &lt;category&gt;Computers&lt;/category&gt;</span><br><span class="line">      &lt;price&gt;9.99&lt;/price&gt;</span><br><span class="line">      &lt;date&gt;2018-10-01&lt;/date&gt;</span><br><span class="line">      &lt;description&gt;&amp;xxe;&lt;/description&gt;</span><br><span class="line">   &lt;/core&gt;</span><br><span class="line">&lt;/catalog&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="修复方案-3"><a href="#修复方案-3" class="headerlink" title="修复方案"></a>修复方案</h2><ul>
+<li><p>使用开发语言提供的禁用外部实体的方法。</p>
+</li>
+<li><p>过滤用户提交的XML数据。</p>
+</li>
+<li><p>尽可能使用简单的数据格式（如：JSON），避免对敏感数据进行序列化。</p>
+</li>
+</ul>
+<h2 id="攻击检测方法-3"><a href="#攻击检测方法-3" class="headerlink" title="攻击检测方法"></a>攻击检测方法</h2><p>查看是否又xxe的敏感信息，比如：</p>
+<?xml version="1.0"?>
+
+<!ENTITY xxe SYSTEM="file:///etc/passwd"]><h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><h2 id="原理-4"><a href="#原理-4" class="headerlink" title="原理"></a>原理</h2><p>大部分的网站和应用系统都有上传功能，而程序员在开发任意文件上传功能时，并未考虑文件格式后缀的合法性校验或者是否只在前端通过js进行后缀检验。</p>
+<h2 id="危害-4"><a href="#危害-4" class="headerlink" title="危害"></a>危害</h2><p>如果 Web应用程序存在上传漏洞，攻击者上传的文件是Web脚本语言，服务器的Web容器解释并执行了用户上传的脚本，导致代码执行<br>攻击者可以直接上传一个webshell到服务器上 完全控制系统或致使系统瘫痪。</p>
+<h2 id="利用方式-4"><a href="#利用方式-4" class="headerlink" title="利用方式"></a>利用方式</h2><p>文件名大小写绕过，例如Php，AsP等类似的文件名</p>
+<p>后缀名字双写嵌套，例如pphphp，asaspp等</p>
+<p>可以利用系统会对一些特殊文件名做默认修改的系统特性绕过</p>
+<p>可以利用asp程序中的漏洞，使用截断字符绕过</p>
+<h2 id="修复方案-4"><a href="#修复方案-4" class="headerlink" title="修复方案"></a>修复方案</h2><p>上传文件的存储目录禁用执行权限</p>
+<p>文件的后缀白名单，注意0x00截断攻击</p>
+<p>使用随机数改写文件名和文件路径，使得用户不能轻易访问自己上传的文件；</p>
+<h2 id="攻击检测方法-4"><a href="#攻击检测方法-4" class="headerlink" title="攻击检测方法"></a>攻击检测方法</h2><p>查看文件的后缀名是否存在截断攻击</p>
+<h1 id="文件下载"><a href="#文件下载" class="headerlink" title="文件下载"></a>文件下载</h1><h2 id="原理-5"><a href="#原理-5" class="headerlink" title="原理"></a>原理</h2><p>由于一些网站的业务需要,往往需要提供文件读取或下载的一个模块,但如果没有对读取或下载做一个白名单或者限制，可能导致恶意攻击者读取下载一些敏感信息(etc/passwd 等),对服务器做下一步的进攻与威胁。</p>
+<h2 id="危害-5"><a href="#危害-5" class="headerlink" title="危害"></a>危害</h2><p>通过任意文件下载，可以下载服务器的任意文件，web业务的代码，服务器和系统的具体配置信息，也可以下载数据库的配置信息，以及对内网的信息探测等等。</p>
+<h2 id="利用方式-5"><a href="#利用方式-5" class="headerlink" title="利用方式"></a>利用方式</h2><p>漏洞验证：</p>
+<ul>
+<li><p>index.php?f=<code>../../../../../../etc/passwd</code></p>
+</li>
+<li><p>index.php?f=<code>../index.php</code></p>
+</li>
+<li><p>index.php?f=<code>ﬁle:///etc/passwd</code></p>
+</li>
+</ul>
+<blockquote>
+<p>【区分】当参数f的参数值为php文件时，若是文件被解析则是<strong>文件包含漏洞</strong>，若显示源码或提示下载则是<strong>文件查看与下载漏洞</strong>。</p>
+</blockquote>
+<h2 id="修复方案-5"><a href="#修复方案-5" class="headerlink" title="修复方案"></a>修复方案</h2><ul>
+<li>过滤<code>.</code>(点)，使用户在url中不能回溯上级目录；</li>
+<li>正则严格判断用户输入参数的格式；</li>
+<li>php.ini配置open_basedir限定文件访问范围。</li>
+</ul>
+<h2 id="攻击检测方法-5"><a href="#攻击检测方法-5" class="headerlink" title="攻击检测方法"></a>攻击检测方法</h2><p>查看路径是否下载某些敏感信息，比如一些日志文件，或者配置文件</p>
+<h1 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h1><h2 id="原理-6"><a href="#原理-6" class="headerlink" title="原理"></a>原理</h2><p>在进行文件包含的时候,没有对参数进行严格的过滤</p>
+<h2 id="危害-6"><a href="#危害-6" class="headerlink" title="危害"></a>危害</h2><p>本地包含:可以进行一些本地的文件读取 </p>
+<p>远程包含:可以对外网上的文件进行读取</p>
+<h2 id="利用方式-6"><a href="#利用方式-6" class="headerlink" title="利用方式"></a>利用方式</h2><p>file://伪协议 （读取文件内容）<br>通过file协议可以访问本地文件系统，读取到文件的内容</p>
+<p>php://input(读取post数据)<br>碰到file_get_contents()就要想到用php://input绕过，因为php伪协议也是可以利用http协议的，即可以使用POST方式传数据</p>
+<p>php://input（命令执行）</p>
+<p>条件：php配置文件中需同时开启 allow_url_fopen 和 allow_url_include（PHP &lt; 5.30）,就可以造成任意代码执行，在这可以理解成远程文件包含漏洞（RFI），即POST过去PHP代码，即可执行</p>
+<p><code>&lt;?php system(&#39;whoami&#39;);?&gt;</code></p>
+<h2 id="修复方案-6"><a href="#修复方案-6" class="headerlink" title="修复方案"></a>修复方案</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">过滤../ ./</span><br><span class="line">配置php.ini文件</span><br><span class="line">都关闭allow_url_fopen 和 allow_url_include</span><br><span class="line">设置白名单</span><br></pre></td></tr></table></figure>
+
+<h2 id="攻击检测方法-6"><a href="#攻击检测方法-6" class="headerlink" title="攻击检测方法"></a>攻击检测方法</h2><p>检测是由出现../../这样的路径，</p>
+<p>file://伪协议  (读取文件源码)</p>
+<p>php://filter/  本地磁盘文件进行读取</p>
+<p>php://input</p>
+<p>%00截断等</p>
+<h1 id="解析漏洞"><a href="#解析漏洞" class="headerlink" title="解析漏洞"></a>解析漏洞</h1><h2 id="原理-7"><a href="#原理-7" class="headerlink" title="原理"></a>原理</h2><p>解析漏洞是指服务器应用程序在解析某些精心构造的后缀文件时，会将其解析成网页脚本，从而导致网站的沦陷。大部分解析漏洞的产生都是由应用程序本身的漏洞导致的。</p>
+<h2 id="危害-7"><a href="#危害-7" class="headerlink" title="危害"></a>危害</h2><p>网站会受到攻击，攻击者可以获取后台shell</p>
+<h2 id="利用方式-7"><a href="#利用方式-7" class="headerlink" title="利用方式"></a>利用方式</h2><h3 id="1、Apache解析漏洞"><a href="#1、Apache解析漏洞" class="headerlink" title="1、Apache解析漏洞"></a>1、Apache解析漏洞</h3><p>在Apache 1.x和Apache 2.x中也存在解析漏洞。</p>
+<p>例如：1.php.rar会被当作php文件执行。</p>
+<p>Apache在解析文件时有一个原则：按照识别“.”后的扩展名来解析，当碰到不认识的扩展名时，将会从后面向前解析，直到碰到认识的扩展名为止。</p>
+<p>例如：1.php.aa.bb.cc</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1.php.aa.bb.cc</span><br></pre></td></tr></table></figure>
+
+<p>会先解析cc，若cc不存在则解析bb，bb不存在则解析aa，aa不存在则只能解析PHP了。如果解析完还没有碰到可以解析的扩展名，就会暴露源文件。</p>
+<h3 id="2、Nginx-lt-8-03-空字节代码执行漏洞"><a href="#2、Nginx-lt-8-03-空字节代码执行漏洞" class="headerlink" title="2、Nginx &lt;8.03 空字节代码执行漏洞"></a>2、Nginx &lt;8.03 空字节代码执行漏洞</h3><p>影响版:0.5.,0.6., 0.7 &lt;= 0.7.65, 0.8 &lt;= 0.8.37</p>
+<p>当使用PHP-FastCGI执行PHP时，遇到url里面存在%00空字节时与FastCGI的处理不一致，导致可在非PHP文件中嵌入PHP代码，通过访问url+%00.PHP来执行其中的PHP代码。</p>
+<p>例如：”<a target="_blank" rel="noopener" href="http://127.0.0.1/1.jpg%00.php&quot;%E4%BC%9A%E6%8A%8A1.jpg%E6%96%87%E4%BB%B6%EF%BC%88%E6%9C%A8%E9%A9%AC%E6%96%87%E4%BB%B6%EF%BC%89%E5%BD%93%E5%81%9APHP%E6%96%87%E4%BB%B6%E6%9D%A5%E6%89%A7%E8%A1%8C%E3%80%82">http://127.0.0.1/1.jpg%00.php&quot;会把1.jpg文件（木马文件）当做PHP文件来执行。</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxx.jpg%00.php</span><br></pre></td></tr></table></figure>
+
+<h3 id="3、IIS-7-0-IIS-7-5-Nginx-lt-8-03畸形解析漏洞"><a href="#3、IIS-7-0-IIS-7-5-Nginx-lt-8-03畸形解析漏洞" class="headerlink" title="3、IIS 7.0/IIS 7.5/ Nginx &lt;8.03畸形解析漏洞"></a>3、IIS 7.0/IIS 7.5/ Nginx &lt;8.03畸形解析漏洞</h3><p>IIS 7.0/IIS 7.5/ Nginx &lt;8.03在Fast-CGI运行模式下，在一个文件路径(/xx.jpg)后面加上/xx.php会将/xx.jpg/xx.php 解析为 php 文件。</p>
+<p>在某些使用有漏洞的网站中，访问<a target="_blank" rel="noopener" href="http://127.0.0.1/1.jpg/1.php%EF%BC%8C%E6%AD%A4%E6%97%B6%E7%9A%841.jpg%E4%BC%9A%E8%A2%AB%E5%BD%93%E4%BD%9CPHP%E8%84%9A%E6%9C%AC%E6%9D%A5%E8%A7%A3%E6%9E%90,%E6%AD%A4%E6%97%B61.php%E6%98%AF%E4%B8%8D%E5%AD%98%E5%9C%A8%E7%9A%84%E3%80%82">http://127.0.0.1/1.jpg/1.php，此时的1.jpg会被当作PHP脚本来解析,此时1.php是不存在的。</a></p>
+<p>这就意味着攻击者可以上传合法的“图片”（图片木马）然后在URL后面加上“/xxx.php”，就可以获得网站的WebShell，在使用菜刀链接即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1.jpg/1.php</span><br></pre></td></tr></table></figure>
+
+<h3 id="4、IIS-5-x-6-0解析漏洞"><a href="#4、IIS-5-x-6-0解析漏洞" class="headerlink" title="4、IIS 5.x/6.0解析漏洞"></a>4、IIS 5.x/6.0解析漏洞</h3><p>在IIS5.X和IIS6.0版本中存在以下两个解析漏洞。</p>
+<p><strong>（1）目录解析漏洞</strong></p>
+<p>在网站中建立名字为*.asp、*.asa的文件夹，其目录内的任何扩展名文件都会被IIS当做ASP文件来解析并执行。</p>
+<p>例如：创建一个目录test.asp，那么/test.asp/1.jpg将被当做ASP文件来执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/xx.asp/xx.jpg</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>（2）文件解析漏洞</strong></p>
+<p>网站上传图片的时候，如果将网页木马文件的名字改成”<em>.asp;1.jpg”，分号后面的不被解析，也就是说，”</em>.asp;1.jpg”会被服务器看成是*.asp，就可以绕过服务器禁止上传ASP文件的限制，这样的畸形文件也同样会被IIS当做ASP文件来解析并执行。</p>
+<p>例如：上    传一个图片文件名为”test.asp;1.jpg”的木马文件，该文件可以被当做ASP文件解析并执行。</p>
+<p>在IIS6.0版本中，默认可执行文件除了test.asp以外，还包括test.asa、test.cer、test.cdx这三种，同样也存在解析漏洞。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">test.asp;1.jpg</span><br><span class="line">test.asa;1.jpg</span><br><span class="line">test.cer;1.jpg</span><br><span class="line">test.cdx;1.jpg</span><br></pre></td></tr></table></figure>
+
+<h2 id="修复方案-7"><a href="#修复方案-7" class="headerlink" title="修复方案"></a>修复方案</h2><p><strong>IIS 5.x/6.0解析漏洞</strong></p>
+<p>1.目前尚无微软官方的补丁,可以通过自己编写正则,阻止上传 xx.asp;.jpg类型<br>的文件名。<br>2.做好权限设置,限制用户创建文件夹。<br>3.针对IIS7.5解析漏洞修复方案,修改php.ini文件,将 cgi.fix_pathinfo的值设置为0完成后请重启PHP和IIS</p>
+<p><strong>Apache解析漏洞</strong></p>
+<p> 1、apache配置文件，禁止.php.这样的文件执行，配置文件里面加入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;Files ~ “.(php.|php3.)”&gt;</span><br><span class="line">        Order Allow,Deny</span><br><span class="line">        Deny from all</span><br><span class="line">&lt;/Files&gt;</span><br></pre></td></tr></table></figure>
+
+<p>​    2、用伪静态能解决这个问题，重写类似.php.*这类文件，打开apache的httpd.conf找到#LoadModule rewrite_module</p>
+<p>modules/mod_rewrite.so</p>
+<p>把 ‘#’ 号去掉，重启apache,在网站根目录下建立 .htaccess 文件,代码如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;Files ~ “.(php.|php3.)”&gt;</span><br><span class="line">        Order Allow,Deny</span><br><span class="line">        Deny from all</span><br><span class="line">&lt;/Files&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="攻击检测方法-7"><a href="#攻击检测方法-7" class="headerlink" title="攻击检测方法"></a>攻击检测方法</h2><p>查看文件的后缀是否特殊</p>
+<h1 id="逻辑漏洞"><a href="#逻辑漏洞" class="headerlink" title="逻辑漏洞"></a>逻辑漏洞</h1><h2 id="原理-8"><a href="#原理-8" class="headerlink" title="原理"></a>原理</h2><p>大部分逻辑缺陷表现为开发者在思考过程中做出的特殊假设存在明显或隐含的错误</p>
+<h2 id="修复方案-8"><a href="#修复方案-8" class="headerlink" title="修复方案"></a>修复方案</h2><ol>
+<li>确保将应用程序各方面的设计信息都详细的记录在文档中，方便其他人了解设计者做出的每个假设。</li>
+<li>要求源代码提供清楚的注释，包括每个代码的组件的用途和预计用法以及每个组件对它无法直接控制的内容做出的假设。</li>
+<li>根据会话确定用户的身份和权限，不要根据请求的其他特性对用户的权限做出假设。</li>
+</ol>
+<h1 id="反序列化漏洞"><a href="#反序列化漏洞" class="headerlink" title="反序列化漏洞"></a>反序列化漏洞</h1><h2 id="原理-9"><a href="#原理-9" class="headerlink" title="原理"></a>原理</h2><p>不安全的反序列化会导致远程代码执行。即使反序列化缺陷不会导致远程代码执行，攻击者也可以</p>
+<p>利用它们来执行攻击，包括：重播攻击、注入攻击和特权升级攻击。</p>
+<h2 id="危害-8"><a href="#危害-8" class="headerlink" title="危害"></a>危害</h2><p>可能导致远程代码执行攻击</p>
+<h2 id="利用方式-8"><a href="#利用方式-8" class="headerlink" title="利用方式"></a>利用方式</h2><ul>
+<li><p>php反序列化漏洞又称对象注入，可能会导致远程代码执行(RCE)，漏洞前提是unserialize函数的变量可控，php文件中存在可利用的类，类中有魔术方法。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">使用PHP对象序列化来保存一个“超级”cookie。该cookie包含了用户的用户ID、角色、密码哈希和其他状态：</span><br><span class="line">a:4:&#123;i:0;i:132;i:1;s:7:&quot;Mallory&quot;;i:2;s:4:&quot;user&quot;;i:3;s:32:&quot;b6a8b3bea87fe0e05022f8f3c88bc960&quot;;&#125;</span><br><span class="line"></span><br><span class="line">攻击者更改序列化对象以授予自己为admin权限：</span><br><span class="line">a:4:&#123;i:0;i:1;i:1;s:5:&quot;Alice&quot;;i:2;s:5:&quot;admin&quot;;i:3;s:32:&quot;b6a8b3bea87fe0e05022f8f3c88bc960&quot;;&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>利用Apache Commons Collections实现远程代码执行，Apache Commons Collections中实现的一些类可以被反序列化用来实现任意代码执行。WebLogic、WebSphere、这些应用的反序列化漏洞能够得以利用，就是依靠了Apache Commons Collections。</p>
+</li>
+<li><p>2017年有报道，黑客利用WebLogic 反序列化漏洞（CVE-2017-3248）和WebLogic WLS 组件漏洞（CVE-2017-10271）对企业服务器发起大范围远程攻击，有大量企业的服务器被攻陷。</p>
+</li>
+</ul>
+<h2 id="修复方案-9"><a href="#修复方案-9" class="headerlink" title="修复方案"></a>修复方案</h2><p>1、php编码中对参数进行处理，使用更安全的函数。</p>
+<p>2、限制或监视来自于容器或服务器传入和传出的反序列化网络连接。</p>
+<p>3、如果可能，隔离运行那些在低特权环境中反序列化的代码。</p>
+<p>4、执行完整性检查，如：任何序列化对象的数字签名，防止恶意对象创建或数据篡改。</p>
+<h2 id="攻击检测方法-8"><a href="#攻击检测方法-8" class="headerlink" title="攻击检测方法"></a>攻击检测方法</h2><p>是否出现类似a:4:{i:0;i:1;i:1;s:5:”Alice”;i:2;s:5:”admin”;i:3;s:32:”b6a8b3bea87fe0e05022f8f3c88bc960”;}字样</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/05/25/Web%E5%BA%94%E7%94%A8%E7%BB%84%E6%88%90/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/05/25/%E6%94%BB%E9%98%B2%E6%BC%94%E7%BB%83%E5%B7%A5%E4%BD%9C/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="nav-number">1.</span> <span class="nav-text">SQL注入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3"><span class="nav-number">1.2.</span> <span class="nav-text">危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">1.3.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88"><span class="nav-number">1.4.</span> <span class="nav-text">修复方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95"><span class="nav-number">1.5.</span> <span class="nav-text">攻击检测方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#XSS"><span class="nav-number">2.</span> <span class="nav-text">XSS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-number">2.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3-1"><span class="nav-number">2.2.</span> <span class="nav-text">危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-1"><span class="nav-number">2.3.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88-1"><span class="nav-number">2.4.</span> <span class="nav-text">修复方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95-1"><span class="nav-number">2.5.</span> <span class="nav-text">攻击检测方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CSRF"><span class="nav-number">3.</span> <span class="nav-text">CSRF</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-2"><span class="nav-number">3.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3-2"><span class="nav-number">3.2.</span> <span class="nav-text">危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-2"><span class="nav-number">3.3.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88-2"><span class="nav-number">3.4.</span> <span class="nav-text">修复方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95-2"><span class="nav-number">3.5.</span> <span class="nav-text">攻击检测方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#XXE"><span class="nav-number">4.</span> <span class="nav-text">XXE</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-3"><span class="nav-number">4.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3-3"><span class="nav-number">4.2.</span> <span class="nav-text">危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-3"><span class="nav-number">4.3.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88-3"><span class="nav-number">4.4.</span> <span class="nav-text">修复方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95-3"><span class="nav-number">4.5.</span> <span class="nav-text">攻击检测方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="nav-number">5.</span> <span class="nav-text">文件上传</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-4"><span class="nav-number">5.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3-4"><span class="nav-number">5.2.</span> <span class="nav-text">危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-4"><span class="nav-number">5.3.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88-4"><span class="nav-number">5.4.</span> <span class="nav-text">修复方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95-4"><span class="nav-number">5.5.</span> <span class="nav-text">攻击检测方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD"><span class="nav-number">6.</span> <span class="nav-text">文件下载</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-5"><span class="nav-number">6.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3-5"><span class="nav-number">6.2.</span> <span class="nav-text">危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-5"><span class="nav-number">6.3.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88-5"><span class="nav-number">6.4.</span> <span class="nav-text">修复方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95-5"><span class="nav-number">6.5.</span> <span class="nav-text">攻击检测方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="nav-number">7.</span> <span class="nav-text">文件包含</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-6"><span class="nav-number">7.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3-6"><span class="nav-number">7.2.</span> <span class="nav-text">危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-6"><span class="nav-number">7.3.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88-6"><span class="nav-number">7.4.</span> <span class="nav-text">修复方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95-6"><span class="nav-number">7.5.</span> <span class="nav-text">攻击检测方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="nav-number">8.</span> <span class="nav-text">解析漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-7"><span class="nav-number">8.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3-7"><span class="nav-number">8.2.</span> <span class="nav-text">危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-7"><span class="nav-number">8.3.</span> <span class="nav-text">利用方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81Apache%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="nav-number">8.3.1.</span> <span class="nav-text">1、Apache解析漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81Nginx-lt-8-03-%E7%A9%BA%E5%AD%97%E8%8A%82%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E"><span class="nav-number">8.3.2.</span> <span class="nav-text">2、Nginx &lt;8.03 空字节代码执行漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81IIS-7-0-IIS-7-5-Nginx-lt-8-03%E7%95%B8%E5%BD%A2%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="nav-number">8.3.3.</span> <span class="nav-text">3、IIS 7.0&#x2F;IIS 7.5&#x2F; Nginx &lt;8.03畸形解析漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4%E3%80%81IIS-5-x-6-0%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="nav-number">8.3.4.</span> <span class="nav-text">4、IIS 5.x&#x2F;6.0解析漏洞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88-7"><span class="nav-number">8.4.</span> <span class="nav-text">修复方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95-7"><span class="nav-number">8.5.</span> <span class="nav-text">攻击检测方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E"><span class="nav-number">9.</span> <span class="nav-text">逻辑漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-8"><span class="nav-number">9.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88-8"><span class="nav-number">9.2.</span> <span class="nav-text">修复方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E"><span class="nav-number">10.</span> <span class="nav-text">反序列化漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-9"><span class="nav-number">10.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B1%E5%AE%B3-8"><span class="nav-number">10.2.</span> <span class="nav-text">危害</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-8"><span class="nav-number">10.3.</span> <span class="nav-text">利用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%A1%88-9"><span class="nav-number">10.4.</span> <span class="nav-text">修复方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E6%A3%80%E6%B5%8B%E6%96%B9%E6%B3%95-8"><span class="nav-number">10.5.</span> <span class="nav-text">攻击检测方法</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="t2ee"
+      src="/images/111.jpg">
+  <p class="site-author-name" itemprop="name">t2ee</p>
+  <div class="site-description" itemprop="description">选择有时候比努力更重要</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021-05 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">t2ee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

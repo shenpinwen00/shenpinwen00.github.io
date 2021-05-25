@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Web应用基本由操作系统、中间件、服务器、数据库等组成 windows 常用版本服务器版  Windows Server 2003（基于WinXP） Windows Server 2008（基于WinVista&#x2F;R2基于Win7） Windows Server 2012（基于Win8&#x2F;R2基于Win8.1） Windows Server 2016（基于Win10 1607） Windows Ser">
+<meta property="og:type" content="article">
+<meta property="og:title" content="t2ee的博客">
+<meta property="og:url" content="http://example.com/2021/05/25/Web%E5%BA%94%E7%94%A8%E7%BB%84%E6%88%90/index.html">
+<meta property="og:site_name" content="t2ee的博客">
+<meta property="og:description" content="Web应用基本由操作系统、中间件、服务器、数据库等组成 windows 常用版本服务器版  Windows Server 2003（基于WinXP） Windows Server 2008（基于WinVista&#x2F;R2基于Win7） Windows Server 2012（基于Win8&#x2F;R2基于Win8.1） Windows Server 2016（基于Win10 1607） Windows Ser">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://test-123456-imgsubmit.oss-cn-beijing.aliyuncs.com/img/2019061210404542.png">
+<meta property="og:image" content="http://test-123456-imgsubmit.oss-cn-beijing.aliyuncs.com/img/20190612104107925.png">
+<meta property="article:published_time" content="2021-05-25T09:01:30.352Z">
+<meta property="article:modified_time" content="2021-03-19T01:37:36.160Z">
+<meta property="article:author" content="t2ee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://test-123456-imgsubmit.oss-cn-beijing.aliyuncs.com/img/2019061210404542.png">
+
+<link rel="canonical" href="http://example.com/2021/05/25/Web%E5%BA%94%E7%94%A8%E7%BB%84%E6%88%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title> | t2ee的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">t2ee的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-resources">
+
+    <a href="/resources/" rel="section"><i class="download fa-fw"></i>资源</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/25/Web%E5%BA%94%E7%94%A8%E7%BB%84%E6%88%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/111.jpg">
+      <meta itemprop="name" content="t2ee">
+      <meta itemprop="description" content="选择有时候比努力更重要">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="t2ee的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-05-25 17:01:30" itemprop="dateCreated datePublished" datetime="2021-05-25T17:01:30+08:00">2021-05-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-19 09:37:36" itemprop="dateModified" datetime="2021-03-19T09:37:36+08:00">2021-03-19</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Web应用基本由操作系统、中间件、服务器、数据库等组成</p>
+<h2 id="windows-常用版本"><a href="#windows-常用版本" class="headerlink" title="windows 常用版本"></a>windows 常用版本</h2><p><strong>服务器版</strong></p>
+<ul>
+<li>Windows Server 2003（基于WinXP）</li>
+<li>Windows Server 2008（基于WinVista/R2基于Win7）</li>
+<li>Windows Server 2012（基于Win8/R2基于Win8.1）</li>
+<li>Windows Server 2016（基于Win10 1607）</li>
+<li>Windows Server 2019（基于Win10 1809）</li>
+</ul>
+<p><strong>桌面版</strong></p>
+<ul>
+<li>Windows 2000</li>
+<li>Windows XP</li>
+<li>Windows Vista</li>
+<li>Windows 7</li>
+<li>Windows 8/8.1</li>
+<li>Windows 10</li>
+</ul>
+<h2 id="身份验证-本地认证"><a href="#身份验证-本地认证" class="headerlink" title="身份验证-本地认证"></a>身份验证-本地认证</h2><p>Windows内部是不保存明文密码的，只保存密码的hash。本机用户的密码hash是放在本地的sam文件</p>
+<p>域内用户的密码hash是存在域控的NTDS.DIT文件。</p>
+<p>SAM文件是位于%SystemRoot%\system32\config\目录下的，用于储存本地所有用户的凭证信息，但是这并不代表着你可以随意去查看系统密码。</p>
+<h2 id="身份验证-NTLM-Hash"><a href="#身份验证-NTLM-Hash" class="headerlink" title="身份验证-NTLM Hash"></a>身份验证-NTLM Hash</h2><blockquote>
+<p>早期 SMB协议在 网络上传输明文口令。后来出现 LAN Manager Challenge/Response 验证机制，简称LM，它是如此简单以至很容易就被破解。微软提出了WindowsNT挑战/响应验证机制，称之为 NTLM。现在已经有了更新的NTLMv2以及Kerberos验证体系。NTLM是windows早期安全协议，因向后兼容性而保留下来。NTLM是NT LAN Manager的缩写，即NT LAN管理器。</p>
+</blockquote>
+<p>NTML Hash通常指存储在sam数据库及ntd5数据库中对密码进行hash摘要计算后的结果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">验证过程：</span><br><span class="line"><span class="number">1.</span>用户输入username、password、domainname（交互式才需要这个步骤），客户端会计算<span class="built_in">hash</span>值保存在本地；</span><br><span class="line"><span class="number">2.</span>客户端将username明文发给DC；</span><br><span class="line"><span class="number">3.</span>DC生成一个16Byte的随机数（challenge）发送给客户端；</span><br><span class="line"><span class="number">4.</span>客户端通过运算生成一个响应值response=f(hashes,challenge,other)=&gt;other根据版本变化，例如时间戳来防止回访等；</span><br><span class="line"><span class="number">5.</span>客户端将响应值发送给DC；</span><br><span class="line"><span class="number">6.</span>DC经过同样的运算result = f(hashes,challenge,other)，然后比较result和response，一直就验证通过，不一致则验证不通过；</span><br><span class="line"><span class="number">7.</span>备注：目标不一定是DC，<span class="built_in">hash</span>对应的账号所登录的（有缓存的）工作站也可以。</span><br></pre></td></tr></table></figure>
+
+<p>缺陷：可能会受到PTH（Pass-The-Hash），即哈希传递攻击，攻击者攻击了一台主机后，获取了他电脑的hash，然后就可以向同一网段其他主机进行hash的碰撞。若两台电脑密码设置的一样，那么就可以登录另一台主机。</p>
+<h2 id="身份验证-NTLM-v2"><a href="#身份验证-NTLM-v2" class="headerlink" title="身份验证-NTLM v2"></a>身份验证-NTLM v2</h2><p>NTLMV2在NTLM里面添加了加密算法。需要在IIS中添加数字证书，在windows2003及以上的版本才支持NTLMV2的单点登录认证。必须通过IIS进行登录认证。</p>
+<h2 id="身份验证-Kerberos协议"><a href="#身份验证-Kerberos协议" class="headerlink" title="身份验证-Kerberos协议"></a>身份验证-Kerberos协议</h2><h3 id="主要的三个角色（三只狗）："><a href="#主要的三个角色（三只狗）：" class="headerlink" title="主要的三个角色（三只狗）："></a>主要的三个角色（三只狗）：</h3><ol>
+<li>Client</li>
+<li>Server</li>
+<li>KDC(Key Distribution Center) == DC  密钥分发中心<ul>
+<li>Authentication Server. ==AS. 身份验证服务</li>
+<li>Ticket Granting Server . ==TGS 票据授予服务</li>
+</ul>
+</li>
+</ol>
+<h3 id="Kerberos会使用的端口"><a href="#Kerberos会使用的端口" class="headerlink" title="Kerberos会使用的端口"></a>Kerberos会使用的端口</h3><p>TCP和UDP的<strong>88</strong>端口：身份验证和票证授予</p>
+<p>TCP和UDP的<strong>464</strong>端口：经典Kerberos Kpaswd（密码重设）协议</p>
+<h3 id="验证流程："><a href="#验证流程：" class="headerlink" title="验证流程："></a>验证流程：</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span> client向kerberos服务请求,希望获取访问server的权限。kerberos得到消息后，</span><br><span class="line">	首先会判断client是否为可信赖的。(黑白名单)成功后，AS返回TGT给client 。</span><br><span class="line"><span class="number">2.</span> Client 得到TGT后，继续向kerberos 请求，希望获取访问server的权限。kerberos又得到了这个消息，</span><br><span class="line">	这时候通过client消息中TGT，判断出client拥有了这个权限，返回给client访问server的权限ticket</span><br><span class="line"><span class="number">3.</span> client得到最后的ticket后，就可以访问server了，不过这个ticket只针对这一个server。</span><br><span class="line">大致就是先要获取资格，有资格后才能买票</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="操作系统-Linux"><a href="#操作系统-Linux" class="headerlink" title="操作系统-Linux"></a>操作系统-Linux</h2><p>个人常见使用的linux：Debian、Ubuntu(基于Debian)、CentOS、Deepin、kali</p>
+<h2 id="Web应用组成-开发语言"><a href="#Web应用组成-开发语言" class="headerlink" title="Web应用组成-开发语言"></a>Web应用组成-开发语言</h2><p>开发语言可以分为前端、后端。</p>
+<p>前端：</p>
+<ul>
+<li>HTML</li>
+<li>CSS</li>
+<li>JavaScript</li>
+</ul>
+<p>后端：</p>
+<ul>
+<li>PHP</li>
+<li>.NET</li>
+<li>JAVA</li>
+</ul>
+<h2 id="Web应用组成-中间件"><a href="#Web应用组成-中间件" class="headerlink" title="Web应用组成-中间件"></a>Web应用组成-中间件</h2><p>ISS、tomcat、nginx、jboss</p>
+<h2 id="Web应用组成-数据库"><a href="#Web应用组成-数据库" class="headerlink" title="Web应用组成-数据库"></a>Web应用组成-数据库</h2><p>SQL Server 、MySQL、Oracle、Redis</p>
+<h2 id="Web网站常见架构"><a href="#Web网站常见架构" class="headerlink" title="Web网站常见架构"></a>Web网站常见架构</h2><h3 id="C-S-Client-Server"><a href="#C-S-Client-Server" class="headerlink" title="C/S(Client Server)"></a>C/S(Client Server)</h3><p>C/S架构流程：客户机——经过(Request)请求——服务器(即数据库)——数据库根据客户机的请求——进一步(Response)响应回去给客户机</p>
+<p><img src="http://test-123456-imgsubmit.oss-cn-beijing.aliyuncs.com/img/2019061210404542.png" alt="img"></p>
+<p>优缺点：C/S结构是一种软件系统体系结构，这种结构是将需要处理的业务合理地分配到客户端和服务器端，这样可以大大降低通信成本，但是升级维护相对困难。比如我们手机中安装的微信、qq、王者荣耀等应用程序就是C/S结构。</p>
+<h3 id="B-S-Browser-Server"><a href="#B-S-Browser-Server" class="headerlink" title="B/S(Browser Server)"></a>B/S(Browser Server)</h3><h4 id="B-S架构的三种形式："><a href="#B-S架构的三种形式：" class="headerlink" title="B/S架构的三种形式："></a>B/S架构的三种形式：</h4><ol>
+<li>客户端—服务器—数据库（常用模式）</li>
+<li>客户端—Web服务器—应用服务器—数据库</li>
+<li>客户端—负载均衡器—中间服务器—应用服务器—数据库</li>
+</ol>
+<h4 id="B-S常用架构流程："><a href="#B-S常用架构流程：" class="headerlink" title="B/S常用架构流程："></a>B/S常用架构流程：</h4><p>​    客户机浏览器——经过Http请求——Web服务器——经过查询——数据库服务器——响应查询后返回结果——Web服务器——再经过Http响应——返回给客户机浏览器</p>
+<p><img src="http://test-123456-imgsubmit.oss-cn-beijing.aliyuncs.com/img/20190612104107925.png" alt="在这里插入图片描述"></p>
+<p>优缺点：B/S结构是随着互联网的发展，web出现后兴起的一种网络结构模式。这种模式统一了客户端，让核心的业务处理在服务端完成。你只需要在自己电脑或手机上安装一个浏览器，就可以通过web Server与数据库进行数据交互。在手机或电脑上用浏览器上百度搜索、看新闻等就是在使用“B/S”结构进行数据交互。这种“B/S”结构的好处：维护和升级方式更简单，客户端是浏览器，基本不需要维护，只需要维护升级服务器端就可以。</p>
+<h3 id="C-S与B-S的结构区别"><a href="#C-S与B-S的结构区别" class="headerlink" title="C/S与B/S的结构区别"></a>C/S与B/S的结构区别</h3><ol>
+<li>硬件环境不同，C/S通常是建立在专用的网络上，小范围的网络环境。而B/S是建立在广域网上的，适应范围强，通常有操作系统和浏览器就行；</li>
+<li>安全要求不同，C/S结构比B/S结构更安全，因为用户群相对固定，对信息的保护更强；而B/S结构面向的范围广，所以安全性比较低；</li>
+<li>系统维护不同，B/S结构维护升级比较简单，而C/S结构维护升级相对困难。</li>
+</ol>
+<h2 id="Web应用系统开发框架"><a href="#Web应用系统开发框架" class="headerlink" title="Web应用系统开发框架"></a>Web应用系统开发框架</h2><p>Java</p>
+<p>SpringBoot</p>
+<p>Jboot</p>
+<p>PHP</p>
+<p>Yi</p>
+<p>flask</p>
+<h2 id="Web应用内容管理系统"><a href="#Web应用内容管理系统" class="headerlink" title="Web应用内容管理系统"></a>Web应用内容管理系统</h2><p>CMS：ThinkPHP、WordPress、DedeCMS、Weaver（泛微）、Discuz、PHPMyAdmin</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/05/25/Pentester%E5%B9%B3%E5%8F%B0/" rel="prev" title="">
+      <i class="fa fa-chevron-left"></i> 
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/05/25/%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#windows-%E5%B8%B8%E7%94%A8%E7%89%88%E6%9C%AC"><span class="nav-number">1.</span> <span class="nav-text">windows 常用版本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81-%E6%9C%AC%E5%9C%B0%E8%AE%A4%E8%AF%81"><span class="nav-number">2.</span> <span class="nav-text">身份验证-本地认证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81-NTLM-Hash"><span class="nav-number">3.</span> <span class="nav-text">身份验证-NTLM Hash</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81-NTLM-v2"><span class="nav-number">4.</span> <span class="nav-text">身份验证-NTLM v2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81-Kerberos%E5%8D%8F%E8%AE%AE"><span class="nav-number">5.</span> <span class="nav-text">身份验证-Kerberos协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E7%9A%84%E4%B8%89%E4%B8%AA%E8%A7%92%E8%89%B2%EF%BC%88%E4%B8%89%E5%8F%AA%E7%8B%97%EF%BC%89%EF%BC%9A"><span class="nav-number">5.1.</span> <span class="nav-text">主要的三个角色（三只狗）：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kerberos%E4%BC%9A%E4%BD%BF%E7%94%A8%E7%9A%84%E7%AB%AF%E5%8F%A3"><span class="nav-number">5.2.</span> <span class="nav-text">Kerberos会使用的端口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E6%B5%81%E7%A8%8B%EF%BC%9A"><span class="nav-number">5.3.</span> <span class="nav-text">验证流程：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F-Linux"><span class="nav-number">6.</span> <span class="nav-text">操作系统-Linux</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web%E5%BA%94%E7%94%A8%E7%BB%84%E6%88%90-%E5%BC%80%E5%8F%91%E8%AF%AD%E8%A8%80"><span class="nav-number">7.</span> <span class="nav-text">Web应用组成-开发语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web%E5%BA%94%E7%94%A8%E7%BB%84%E6%88%90-%E4%B8%AD%E9%97%B4%E4%BB%B6"><span class="nav-number">8.</span> <span class="nav-text">Web应用组成-中间件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web%E5%BA%94%E7%94%A8%E7%BB%84%E6%88%90-%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">9.</span> <span class="nav-text">Web应用组成-数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web%E7%BD%91%E7%AB%99%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84"><span class="nav-number">10.</span> <span class="nav-text">Web网站常见架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#C-S-Client-Server"><span class="nav-number">10.1.</span> <span class="nav-text">C&#x2F;S(Client Server)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-S-Browser-Server"><span class="nav-number">10.2.</span> <span class="nav-text">B&#x2F;S(Browser Server)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#B-S%E6%9E%B6%E6%9E%84%E7%9A%84%E4%B8%89%E7%A7%8D%E5%BD%A2%E5%BC%8F%EF%BC%9A"><span class="nav-number">10.2.1.</span> <span class="nav-text">B&#x2F;S架构的三种形式：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#B-S%E5%B8%B8%E7%94%A8%E6%9E%B6%E6%9E%84%E6%B5%81%E7%A8%8B%EF%BC%9A"><span class="nav-number">10.2.2.</span> <span class="nav-text">B&#x2F;S常用架构流程：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#C-S%E4%B8%8EB-S%E7%9A%84%E7%BB%93%E6%9E%84%E5%8C%BA%E5%88%AB"><span class="nav-number">10.3.</span> <span class="nav-text">C&#x2F;S与B&#x2F;S的结构区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web%E5%BA%94%E7%94%A8%E7%B3%BB%E7%BB%9F%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6"><span class="nav-number">11.</span> <span class="nav-text">Web应用系统开发框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web%E5%BA%94%E7%94%A8%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="nav-number">12.</span> <span class="nav-text">Web应用内容管理系统</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="t2ee"
+      src="/images/111.jpg">
+  <p class="site-author-name" itemprop="name">t2ee</p>
+  <div class="site-description" itemprop="description">选择有时候比努力更重要</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2021-05 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">t2ee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
